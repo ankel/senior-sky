@@ -27,7 +27,7 @@
     <deps.jackson.version>2.6.1</deps.jackson.version>
     <deps.lombok.version>1.16.6</deps.lombok.version>
     <deps.guice.version>4.0</deps.guice.version>
-    <deps.guava.version>18</deps.guava.version>
+    <deps.guava.version>19.0-rc1</deps.guava.version>
     <deps.junit.version>4.12</deps.junit.version>
   </properties>
 
