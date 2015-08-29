@@ -75,6 +75,8 @@ public class RaptorModule extends AbstractModule
   public ServerConnector providesServerConnector(final Server server)
   {
     final ServerConnector serverConnector = new ServerConnector(server);
+    // Not setting acceptors / connectors / whatnot because of no benchmark
+    // final ServerConnector serverConnector = new ServerConnector(server, -1, -1);
     serverConnector.setHost("localhost");
     // Keep alive
     // serverConnector.setIdleTimeout(TimeUnit.SECONDS.toMillis(115));

@@ -84,20 +84,41 @@ public class HttpServer
     return new HttpServerBuilder();
   }
 
+  public void join() throws Exception
+  {
+    server.join();
+  }
+
   public static final class HttpServerBuilder
   {
     private List<Module> modules = new ArrayList<>();
     private List<Class<?>> singletons = new ArrayList<>();
+    private int port = 0;
 
+    /**
+     * Add {@link Module} from which to create injector
+     */
     public HttpServerBuilder addModules(final Module... modules)
     {
       Collections.addAll(this.modules, modules);
       return this;
     }
 
+    /**
+     * Add class of JAX RS resource to be registered to the server.
+     */
     public HttpServerBuilder addSingleton(final Class<?> klass)
     {
       this.singletons.add(klass);
+      return this;
+    }
+
+    /**
+     * Specify the port the server will be run on. Default value is 0 for auto select.
+     */
+    public HttpServerBuilder withPort(final int port)
+    {
+      this.port = port;
       return this;
     }
 
@@ -107,8 +128,9 @@ public class HttpServer
       final ResourceConfig resourceConfig = injector.getInstance(ResourceConfig.class);
       final Server server = injector.getInstance(Server.class);
       final ServerConnector serverConnector = injector.getInstance(ServerConnector.class);
+      serverConnector.setPort(port);
 
-      singletons.forEach(resourceConfig::register);
+      singletons.forEach((c) -> resourceConfig.register(injector.getInstance(c)));
 
       final HttpServer httpServer = new HttpServer(resourceConfig, server, serverConnector);
       httpServer.configure();
