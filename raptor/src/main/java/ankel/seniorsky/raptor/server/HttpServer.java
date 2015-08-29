@@ -1,6 +1,7 @@
 package ankel.seniorsky.raptor.server;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jetty.server.Server;
@@ -85,23 +86,24 @@ public class HttpServer
 
   public static final class HttpServerBuilder
   {
-    private Injector injector;
-    private List<Object> singletons = new ArrayList<>();
+    private List<Module> modules = new ArrayList<>();
+    private List<Class<?>> singletons = new ArrayList<>();
 
     public HttpServerBuilder addModules(final Module... modules)
     {
-      injector = Guice.createInjector(modules);
+      Collections.addAll(this.modules, modules);
       return this;
     }
 
     public HttpServerBuilder addSingleton(final Class<?> klass)
     {
-      singletons.add(injector.getInstance(klass));
+      this.singletons.add(klass);
       return this;
     }
 
     public HttpServer build()
     {
+      final Injector injector = Guice.createInjector(modules);
       final ResourceConfig resourceConfig = injector.getInstance(ResourceConfig.class);
       final Server server = injector.getInstance(Server.class);
       final ServerConnector serverConnector = injector.getInstance(ServerConnector.class);

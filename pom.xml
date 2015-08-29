@@ -25,13 +25,16 @@
     <plugin.jar.version>2.6</plugin.jar.version>
     <plugin.shade.version>2.4.1</plugin.shade.version>
 
-    <deps.jetty.version>9.3.2.v20150730</deps.jetty.version>
-    <deps.jersey.version>2.21</deps.jersey.version>
-    <deps.jackson.version>2.6.1</deps.jackson.version>
-    <deps.lombok.version>1.16.6</deps.lombok.version>
     <deps.guice.version>4.0</deps.guice.version>
     <deps.guava.version>19.0-rc1</deps.guava.version>
+    <deps.jackson.version>2.6.1</deps.jackson.version>
+    <deps.jersey.version>2.21</deps.jersey.version>
+    <deps.jetty.version>9.3.2.v20150730</deps.jetty.version>
     <deps.junit.version>4.12</deps.junit.version>
+    <deps.logback.version>1.1.3</deps.logback.version>
+    <deps.lombok.version>1.16.6</deps.lombok.version>
+    <deps.slf4j.version>1.7.12</deps.slf4j.version>
+
   </properties>
 
   <dependencyManagement>
@@ -94,6 +97,24 @@
       </dependency>
 
       <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${deps.slf4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${deps.logback.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>${deps.logback.version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>${deps.junit.version}</version>
@@ -132,32 +153,6 @@
               </manifest>
             </archive>
           </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-shade-plugin</artifactId>
-          <version>${plugin.shade.version}</version>
-          <configuration>
-            <createDependencyReducedPom>false</createDependencyReducedPom>
-            <filters>
-              <filter>
-                <artifact>*:*</artifact>
-                <excludes>
-                  <exclude>META-INF/*.dsa</exclude>
-                  <exclude>META-INF/*.rsa</exclude>
-                </excludes>
-              </filter>
-            </filters>
-          </configuration>
-          <executions>
-            <execution>
-              <phase>package</phase>
-              <goals>
-                <goal>shade</goal>
-              </goals>
-            </execution>
-          </executions>
         </plugin>
 
       </plugins>
