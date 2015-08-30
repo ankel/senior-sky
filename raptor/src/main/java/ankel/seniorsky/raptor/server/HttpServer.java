@@ -2,11 +2,16 @@ package ankel.seniorsky.raptor.server;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.Filter;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -37,7 +42,7 @@ public class HttpServer
     this.resourceConfig = resourceConfig;
   }
 
-  private void configure()
+  private void configure(final Injector injector, final List<HttpServerFilter> filters)
   {
     final ContextHandlerCollection handlers = new ContextHandlerCollection();
     handlers.setServer(this.server);
@@ -51,6 +56,16 @@ public class HttpServer
     final ServletHolder servletHolder = new ServletHolder(servletContainer);
     servletHolder.setName(SERVLET_NAME);
     servletContextHandler.addServlet(servletHolder, URL_MATCH_ALL);
+
+    filters.forEach((f) ->
+    {
+      final Filter filter = injector.getInstance(f.getFilterClass());
+      final FilterHolder filterHolder = new FilterHolder(filter);
+      servletContextHandler.addFilter(
+          filterHolder,
+          f.getPathSpec(),
+          EnumSet.of(DispatcherType.REQUEST));
+    });
 
     server.setHandler(servletContextHandler);
     server.addConnector(serverConnector);
@@ -84,16 +99,12 @@ public class HttpServer
     return new HttpServerBuilder();
   }
 
-  public void join() throws Exception
-  {
-    server.join();
-  }
-
   public static final class HttpServerBuilder
   {
     private List<Module> modules = new ArrayList<>();
     private List<Class<?>> singletons = new ArrayList<>();
     private int port = 0;
+    private List<HttpServerFilter> filters = new ArrayList<>();
 
     /**
      * Add {@link Module} from which to create injector
@@ -116,10 +127,15 @@ public class HttpServer
     /**
      * Specify the port the server will be run on. Default value is 0 for auto select.
      */
-    public HttpServerBuilder withPort(final int port)
+    public HttpServerBuilder onPort(final int port)
     {
       this.port = port;
       return this;
+    }
+
+    public HttpServerFilter.HttpServerFilterBuilder addFilter()
+    {
+      return HttpServerFilter.builder(this);
     }
 
     public HttpServer build()
@@ -133,9 +149,14 @@ public class HttpServer
       singletons.forEach((c) -> resourceConfig.register(injector.getInstance(c)));
 
       final HttpServer httpServer = new HttpServer(resourceConfig, server, serverConnector);
-      httpServer.configure();
+      httpServer.configure(injector, filters);
       return httpServer;
     }
 
+    HttpServerBuilder addFilter(final HttpServerFilter httpServerFilter)
+    {
+      filters.add(httpServerFilter);
+      return this;
+    }
   }
 }

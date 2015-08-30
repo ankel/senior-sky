@@ -58,7 +58,7 @@ public class SimpleResource
   }
 
   @GET
-  @Path("light")
+  @Path(LIGHT_PATH)
   public LightResponse getLightMode()
   {
     return LightResponse.builder()

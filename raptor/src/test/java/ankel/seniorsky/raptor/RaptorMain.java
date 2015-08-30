@@ -1,6 +1,7 @@
 package ankel.seniorsky.raptor;
 
 import ankel.seniorsky.raptor.config.RaptorModule;
+import ankel.seniorsky.raptor.rest.CORSFilter;
 import ankel.seniorsky.raptor.rest.SimpleResource;
 import ankel.seniorsky.raptor.server.HttpServer;
 
@@ -11,14 +12,23 @@ public class RaptorMain
 {
   public static void main(String[] args) throws Exception
   {
+    // @formatter:off
     final HttpServer httpServer = HttpServer.builder()
         .addModules(new RaptorModule())
+        .onPort(8080)
+        .addFilter()
+          .onPath("/*")
+          .ofType(CORSFilter.class)
+          .build()
         .addSingleton(SimpleResource.class)
-        .withPort(8080)
         .build();
+    // @formatter:on
 
     httpServer.start();
 
-    httpServer.join();
+    System.out.println("Press ENTER to exit");
+    System.in.read();
+
+    httpServer.stop();
   }
 }
