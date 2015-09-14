@@ -37,13 +37,13 @@ public class BridleHttpRequestDecoderTest
   public void testDecodeRelativePath() throws Exception
   {
     // new line character & trailing space
-    setupBufFor("GET /bahh HTTP/1.1  \r\n\r\n");
+    setupBufFor("GET /Documents/1.txt HTTP/1.1  \r\n\r\n");
     List<Object> ret = new ArrayList<>();
     decoder.decode(null, buf, ret);
 
     assertEquals(1, ret.size());
     assertTrue(ret.get(0) instanceof GetRequest);
-    assertEquals("/", ((GetRequest) ret.get(0)).getUri());
+    assertEquals("/Documents/1.txt", ((GetRequest) ret.get(0)).getUri());
   }
 
   @Test
